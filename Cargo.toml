@@ -5,3 +5,7 @@ edition = "2021"
 
 [build-dependencies]
 gobuild = { git = "https://github.com/scroll-tech/gobuild" }
+
+[features]
+default = ["vendor"]
+vendor = []

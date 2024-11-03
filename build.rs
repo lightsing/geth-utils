@@ -1,12 +1,30 @@
 const LIB_NAME: &str = "go-geth-utils";
 
-#[cfg(windows)]
+#[cfg(feature = "vendor")]
 fn main() {
-    println!("cargo:rustc-link-search=native=./vendor/windows-amd64");
+    #[cfg(target_os = "windows")]
+    const OS: &str = "windows";
+    #[cfg(target_os = "macos")]
+    const OS: &str = "darwin";
+    #[cfg(target_os = "linux")]
+    const OS: &str = "linux";
+
+    #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+    compile_error!("Unsupported OS");
+
+    #[cfg(target_arch = "x86_64")]
+    const ARCH: &str = "amd64";
+    #[cfg(target_arch = "aarch64")]
+    const ARCH: &str = "aarch64";
+
+    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    compile_error!("Unsupported architecture");
+
+    println!("cargo:rustc-link-search=native=./vendor/{OS}-{ARCH}");
     println!("cargo:rustc-link-lib=static={LIB_NAME}");
 }
 
-#[cfg(not(windows))]
+#[cfg(not(feature = "vendor"))]
 fn main() {
     let out_dir = std::env::var("OUT_DIR").unwrap();
 
@@ -49,7 +67,7 @@ fn main() {
     println!("cargo:rustc-link-lib=static={LIB_NAME}");
 }
 
-#[cfg(not(windows))]
+#[cfg(not(feature = "vendor"))]
 fn fail(message: String) {
     use std::io::{self, Write};
 
